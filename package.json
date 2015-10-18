@@ -1,7 +1,7 @@
 {
   "name": "sap-menus-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Backend for Menu App for SAP Palo Alto.",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,10 +10,13 @@
     "type": "git",
     "url": "https://github.com/mweisz/sap-menus-backend.git"
   },
-  "author": "",
+  "author": "Jonas Keutel, Michael Weisz",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/mweisz/sap-menus-backend/issues"
   },
-  "homepage": "https://github.com/mweisz/sap-menus-backend"
+  "homepage": "https://github.com/mweisz/sap-menus-backend",
+  "dependencies": {
+    "express": "^4.13.3"
+  }
 }
