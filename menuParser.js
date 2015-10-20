@@ -1,14 +1,15 @@
 var request = require('request');
 
 exports.parseMenu = function (req, res) {
-
+    console.log("lets go");
+    var date = currentWeek();
     // Make API call to Café Bon Appétit
     callOptions = {
         url: "http://legacy.cafebonappetit.com/api/2/menus",
         qs: {
             format: 'json',
             cafe: '245,246,247', // Cafe3, Cafe1, Cafe8 
-            date: '2015-10-20'
+            date: date
         }
     };
 
@@ -19,28 +20,35 @@ exports.parseMenu = function (req, res) {
             return(response.statusCode)
         }
 
-        var resultJson = {};
-
-        var rawMenu = JSON.parse(body);
-        
-        // Café 3
-        console.log('enter first call allItemsForCafe')
-        resultJson.cafe1 = allItemsForCafe(rawMenu, '246')
-        
-        // Café 3
-        resultJson.cafe3 = allItemsForCafe(rawMenu, '245')
-
-        // Café 3
-        resultJson.cafe8 = allItemsForCafe(rawMenu, '247')
-
-        res.send(resultJson);
-        return;
+        parseApiResponse(body, date, res);
     })
 }
 
+function parseApiResponse (body, date, res) {
+    var resultJson = {};
+    var rawMenu = JSON.parse(body);
+
+    for (var i = 0; i < 5; i++) {
+        resultJson[i] = {};
+
+        // Café 1
+        resultJson[i].cafe1 = allItemsForCafeAndDay(rawMenu, '246', i);
+
+        // Café 3
+        resultJson[i].cafe3 = allItemsForCafeAndDay(rawMenu, '245', i);
+
+        // Café 8
+        resultJson[i].cafe8 = allItemsForCafeAndDay(rawMenu, '247', i);
+    }
+
+    res.send(resultJson);
+    return;
+}
+
 // TODO: Error handling
-function allItemsForCafe (rawMenu, id) {
-    var categories = rawMenu.days[0].cafes[id].dayparts[0][1].stations;
+function allItemsForCafeAndDay (rawMenu, id, dayIndex) {
+    console.log(dayIndex);
+    var categories = rawMenu.days[dayIndex].cafes[id].dayparts[0][1].stations;
     var items = {};
 
     var i = 0;
@@ -53,4 +61,22 @@ function allItemsForCafe (rawMenu, id) {
     };
 
     return items;
+}
+
+function currentWeek () {
+    var d = new Date();
+
+    var day = d.getDay();
+
+    var month = d.getMonth();
+
+    // Date of Monday of current week
+    var date = d.setDate(d.getDate() - day + 1)
+
+    var returnString = '';
+    for (var i = 0; i < 5; i++) {
+        returnString += d.getFullYear().toString() + '-' + (d.getMonth() + 1).toString() + '-' + d.getDate().toString() + ',';
+        d.setDate(d.getDate() + 1)
+    }
+    return returnString.slice(0, - 1);
 }
