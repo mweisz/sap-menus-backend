@@ -1,9 +1,22 @@
 var request = require('request');
 
+exports.today = function (req, res) {
+    var date = today();
+    makeApiCall(req, res, date);
+}
+
+exports.tomorrow = function (req, res) {
+    var date = tomorrow();
+    makeApiCall(req, res, date);
+}
+
+// Entire week, all cafes
 exports.parseMenu = function (req, res) {
-    console.log("lets go");
     var date = currentWeek();
-    // Make API call to Café Bon Appétit
+    makeApiCall(req, res, date);
+}
+
+function makeApiCall (req, res, date) {
     callOptions = {
         url: "http://legacy.cafebonappetit.com/api/2/menus",
         qs: {
@@ -28,7 +41,8 @@ function parseApiResponse (body, date, res) {
     var resultJson = {};
     var rawMenu = JSON.parse(body);
 
-    for (var i = 0; i < 5; i++) {
+    date = date.split(",");
+    for (var i = 0; i < date.length; i++) {
         resultJson[i] = {};
 
         // Café 1
@@ -47,7 +61,6 @@ function parseApiResponse (body, date, res) {
 
 // TODO: Error handling
 function allItemsForCafeAndDay (rawMenu, id, dayIndex) {
-    console.log(dayIndex);
     var categories = rawMenu.days[dayIndex].cafes[id].dayparts[0][1].stations;
     var items = {};
 
@@ -79,4 +92,14 @@ function currentWeek () {
         d.setDate(d.getDate() + 1)
     }
     return returnString.slice(0, - 1);
+}
+
+function today () {
+    var d = new Date();
+    return d.getFullYear().toString() + '-' + (d.getMonth() + 1).toString() + '-' + d.getDate().toString();
+}
+
+function tomorrow () {
+    var d = new Date();
+    return d.getFullYear().toString() + '-' + (d.getMonth() + 1).toString() + '-' + (d.getDate() + 1).toString();
 }

@@ -3,6 +3,8 @@ var express = require('express');
 var app = express();
 
 app.get('/sap-menus', parser.parseMenu);
+app.get('/today', parser.today);
+app.get('/tomorrow', parser.tomorrow);
 
 var server = app.listen(3000, function () {
   var host = server.address().address;
