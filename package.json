@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/mweisz/sap-menus-backend",
   "dependencies": {
+    "cors": "^2.7.1",
     "express": "^4.13.3",
     "node-cache": "^3.0.0",
     "request": "^2.65.0"
