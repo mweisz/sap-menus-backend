@@ -1,19 +1,25 @@
 var request = require('request');
+var NodeCache = require('node-cache');
+var cache = new NodeCache();
+
+// Time to live for cache entry until it gets updated [in seconds]
+var CACHE_TTL = 60 * 60 * 24; // sec/min * min/h * h/day =  seconds/day
+
 
 exports.today = function (req, res) {
     var date = today();
-    makeApiCall(req, res, date);
+    getCachedData(req, res, date);
 }
 
 exports.tomorrow = function (req, res) {
     var date = tomorrow();
-    makeApiCall(req, res, date);
+    getCachedData(req, res, date);
 }
 
 // Entire week, all cafes
 exports.parseMenu = function (req, res) {
     var date = currentWeek();
-    makeApiCall(req, res, date);
+    getCachedData(req, res, date);
 }
 
 function makeApiCall (req, res, date) {
@@ -55,6 +61,9 @@ function parseApiResponse (body, date, res) {
         resultJson[i].cafe8 = allItemsForCafeAndDay(rawMenu, '247', i);
     }
 
+    // Cache the result
+    cache.set(date, resultJson, CACHE_TTL);
+
     res.send(resultJson);
     return;
 }
@@ -74,6 +83,16 @@ function allItemsForCafeAndDay (rawMenu, id, dayIndex) {
     };
 
     return items;
+}
+
+function getCachedData (req, res, date) {
+    // Perform cache lookup
+    var cached = cache.get(date);
+    if (cached == undefined) {          // cache miss
+        makeApiCall(req, res, date);
+    } else {                            // cache hit
+        res.send(cached);
+    }
 }
 
 function currentWeek () {
