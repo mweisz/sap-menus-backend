@@ -1,6 +1,9 @@
 var parser = require('./menuParser');
 var express = require('express');
+var cors = require('cors')
 var app = express();
+
+app.use(cors());
 
 app.get('/sap-menus', parser.parseMenu);
 app.get('/today', parser.today);
