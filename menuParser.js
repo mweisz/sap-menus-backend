@@ -22,7 +22,9 @@ exports.parseMenu = function (req, res) {
     getCachedData(req, res, date);
 }
 
-function makeApiCall (req, res, date) {
+// sendResponse is a boolean indicating whether a response should be send (no cached data was found)
+// or if the cache just needs to get refreshed and the result should not be send
+function makeApiCall (req, res, date, sendResponse) {
     callOptions = {
         url: "http://legacy.cafebonappetit.com/api/2/menus",
         qs: {
@@ -39,11 +41,14 @@ function makeApiCall (req, res, date) {
             return(response.statusCode)
         }
 
-        parseApiResponse(body, date, res);
+        parseApiResponse(body, date, res, sendResponse);
     })
 }
 
-function parseApiResponse (body, date, res) {
+
+// sendResponse is a boolean indicating whether a response should be send (no cached data was found)
+// or if the cache just needs to get refreshed and the result should not be send
+function parseApiResponse (body, date, res, sendResponse) {
     var resultJson = {};
     var rawMenu = JSON.parse(body);
 
@@ -64,7 +69,9 @@ function parseApiResponse (body, date, res) {
     // Cache the result
     cache.set(date, resultJson, CACHE_TTL);
 
-    res.send(resultJson);
+    if (sendResponse) {
+        res.send(resultJson);   
+    }
     return;
 }
 
@@ -89,9 +96,10 @@ function getCachedData (req, res, date) {
     // Perform cache lookup
     var cached = cache.get(date);
     if (cached == undefined) {          // cache miss
-        makeApiCall(req, res, date);
+        makeApiCall(req, res, date, true);
     } else {                            // cache hit
         res.send(cached);
+        makeApiCall(req, res, date, false);
     }
 }
 
