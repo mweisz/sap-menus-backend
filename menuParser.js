@@ -44,21 +44,27 @@ function makeApiCall (req, res, date) {
 }
 
 function parseApiResponse (body, date, res) {
-    var resultJson = {};
+    var resultJson = [];
     var rawMenu = JSON.parse(body);
 
     date = date.split(",");
     for (var i = 0; i < date.length; i++) {
-        resultJson[i] = {};
+        resultJson.push([]);
 
         // Café 1
-        resultJson[i].cafe1 = allItemsForCafeAndDay(rawMenu, '246', i);
+        resultJson[i].push({    cafeId: 1,
+                                menuItems: allItemsForCafeAndDay(rawMenu, '246', i)
+                           });
 
         // Café 3
-        resultJson[i].cafe3 = allItemsForCafeAndDay(rawMenu, '245', i);
+        resultJson[i].push({    cafeId: 3,
+                                menuItems: allItemsForCafeAndDay(rawMenu, '245', i)
+                           });        
 
         // Café 8
-        resultJson[i].cafe8 = allItemsForCafeAndDay(rawMenu, '247', i);
+        resultJson[i].push({  cafeId: 8,
+                              menuItems: allItemsForCafeAndDay(rawMenu, '247', i)
+                           });   
     }
 
     // Cache the result
@@ -71,13 +77,13 @@ function parseApiResponse (body, date, res) {
 // TODO: Error handling
 function allItemsForCafeAndDay (rawMenu, id, dayIndex) {
     var categories = rawMenu.days[dayIndex].cafes[id].dayparts[0][1].stations;
-    var items = {};
+    var items = [];
 
     var i = 0;
     for (var j = 0; j < categories.length - 1; j++) {
         for (var k = 0; k < categories[j].items.length; k++) {
             itemId = categories[j].items[k];
-            items[i] = rawMenu.items[itemId].label;
+            items.push(rawMenu.items[itemId].label);
             i++;
         }
     };
