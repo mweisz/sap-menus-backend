@@ -5,14 +5,28 @@ var cache = new NodeCache();
 // Time to live for cache entry until it gets updated [in seconds]
 var CACHE_TTL = 60 * 60 * 24; // sec/min * min/h * h/day =  seconds/day
 
+// Status codes for API call
+var STATUSCODE = {
+    OK : 0,
+    WEEKEND : 1,
+    ERROR : 2
+};
 
 exports.today = function (req, res) {
     var date = today();
+    if ( isWeekend() ) {
+        res.send( { "statusCode" : STATUSCODE.WEEKEND, "content": [] } );
+        return;
+    }
     getCachedData(req, res, date);
 }
 
 exports.tomorrow = function (req, res) {
     var date = tomorrow();
+    if ( isWeekend() ) {
+        res.send( { "statusCode" : STATUSCODE.WEEKEND, "content": [] } );
+        return;
+    }
     getCachedData(req, res, date);
 }
 
@@ -37,8 +51,7 @@ function makeApiCall (req, res, date, sendResponse) {
     request(callOptions, function (error, response, body) {
         if (error || response.statusCode != 200) {
             console.log("Error while trying to make API call. Status Code: " + response.statusCode);
-            res.send("Error while trying to make API call. Status Code: " + response.statusCode)
-            return(response.statusCode)
+            return {"statusCode":ERROR, "content":[] };
         }
 
         parseApiResponse(body, date, res, sendResponse);
@@ -70,6 +83,9 @@ function parseApiResponse (body, date, res, sendResponse) {
                               categories: allCategoriesForCafeAndDay(rawMenu, '247', i)
                            });   
     }
+
+    // wrap json array on object to give information about status
+    resultJson = {"statusCode" : STATUSCODE.OK, "content" : resultJson};
 
     // Cache the result
     cache.set(date, resultJson, CACHE_TTL);
@@ -140,4 +156,11 @@ function today () {
 function tomorrow () {
     var d = new Date();
     return d.getFullYear().toString() + '-' + (d.getMonth() + 1).toString() + '-' + (d.getDate() + 1).toString();
+}
+
+function isWeekend () {
+    var d = new Date();
+    var weekday = d.getDay();
+    console.log(weekday);
+    return weekday > 5
 }
