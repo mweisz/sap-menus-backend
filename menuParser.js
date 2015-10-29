@@ -57,17 +57,17 @@ function parseApiResponse (body, date, res, sendResponse) {
 
         // Café 1
         resultJson[i].push({    cafeId: 1,
-                                menuItems: allItemsForCafeAndDay(rawMenu, '246', i)
+                                categories: allCategoriesForCafeAndDay(rawMenu, '246', i)
                            });
 
         // Café 3
         resultJson[i].push({    cafeId: 3,
-                                menuItems: allItemsForCafeAndDay(rawMenu, '245', i)
+                                categories: allCategoriesForCafeAndDay(rawMenu, '245', i)
                            });        
 
         // Café 8
         resultJson[i].push({  cafeId: 8,
-                              menuItems: allItemsForCafeAndDay(rawMenu, '247', i)
+                              categories: allCategoriesForCafeAndDay(rawMenu, '247', i)
                            });   
     }
 
@@ -81,20 +81,26 @@ function parseApiResponse (body, date, res, sendResponse) {
 }
 
 // TODO: Error handling
-function allItemsForCafeAndDay (rawMenu, id, dayIndex) {
-    var categories = rawMenu.days[dayIndex].cafes[id].dayparts[0][1].stations;
-    var items = [];
+function allCategoriesForCafeAndDay (rawMenu, id, dayIndex) {
+    var categoryNames = rawMenu.days[dayIndex].cafes[id].dayparts[0][1].stations;
+    var categories = [];
 
     var i = 0;
-    for (var j = 0; j < categories.length - 1; j++) {
-        for (var k = 0; k < categories[j].items.length; k++) {
-            itemId = categories[j].items[k];
-            items.push(rawMenu.items[itemId].label);
+    for (var j = 0; j < categoryNames.length - 1; j++) {
+        var categoryData = {
+                                label: categoryNames[j].label, 
+                                menuItems: []
+                           };
+
+        for (var k = 0; k < categoryNames[j].items.length; k++) {
+            itemId = categoryNames[j].items[k];
+            categoryData.menuItems.push(rawMenu.items[itemId].label);
             i++;
         }
+        categories.push(categoryData);
     };
 
-    return items;
+    return categories;
 }
 
 function getCachedData (req, res, date) {
