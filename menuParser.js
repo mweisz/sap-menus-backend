@@ -110,6 +110,11 @@ function allCategoriesForCafeAndDay (rawMenu, id, dayIndex) {
 
         for (var k = 0; k < categoryNames[j].items.length; k++) {
             itemId = categoryNames[j].items[k];
+            item = rawMenu.items[itemId]
+            menuItem = {
+                        label : item.label, 
+                        description : item.description
+                    }
             categoryData.menuItems.push(rawMenu.items[itemId].label);
             i++;
         }
