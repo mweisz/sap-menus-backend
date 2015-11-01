@@ -39,6 +39,7 @@ exports.parseMenu = function (req, res) {
 // sendResponse is a boolean indicating whether a response should be send (no cached data was found)
 // or if the cache just needs to get refreshed and the result should not be send
 function makeApiCall (req, res, date, sendResponse) {
+    console.log("Making API call for", date);
     callOptions = {
         url: "http://legacy.cafebonappetit.com/api/2/menus",
         qs: {
@@ -47,11 +48,11 @@ function makeApiCall (req, res, date, sendResponse) {
             date: date
         }
     };
-
+    console.log(callOptions)
     request(callOptions, function (error, response, body) {
         if (error || response.statusCode != 200) {
             console.log("Error while trying to make API call. Status Code: " + response.statusCode);
-            return {"statusCode":ERROR, "content":[] };
+            return {"statusCode": STATUSCODE.ERROR, "content":[] };
         }
 
         parseApiResponse(body, date, res, sendResponse);
@@ -115,7 +116,7 @@ function allCategoriesForCafeAndDay (rawMenu, id, dayIndex) {
                         label : item.label, 
                         description : item.description
                     }
-            categoryData.menuItems.push(rawMenu.items[itemId].label);
+            categoryData.menuItems.push(menuItem);
             i++;
         }
         categories.push(categoryData);
@@ -153,19 +154,25 @@ function currentWeek () {
     return returnString.slice(0, - 1);
 }
 
+function buildDateStringForApi(d) {
+    var day = d.getDate() < 10 ? "0" + d.getDate().toString() : d.getDate().toString();
+    var month = (d.getMonth() + 1) < 10 ? "0" + (d.getMonth() + 1).toString() : (d.getMonth() + 1).toString();
+    return d.getFullYear().toString() + '-' + month + '-' + day;
+}
+
 function today () {
     var d = new Date();
-    return d.getFullYear().toString() + '-' + (d.getMonth() + 1).toString() + '-' + d.getDate().toString();
+    return buildDateStringForApi(d)
 }
 
 function tomorrow () {
     var d = new Date();
-    return d.getFullYear().toString() + '-' + (d.getMonth() + 1).toString() + '-' + (d.getDate() + 1).toString();
+    d.setDate(d.getDate()+1)
+    return buildDateStringForApi(d)
 }
 
 function isWeekend () {
     var d = new Date();
     var weekday = d.getDay();
-    console.log(weekday);
     return weekday > 5
 }
