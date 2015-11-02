@@ -14,7 +14,7 @@ var STATUSCODE = {
 
 exports.today = function (req, res) {
     var date = today();
-    if ( isWeekend() ) {
+    if ( !isWeekend() ) {
         res.send( { "statusCode" : STATUSCODE.WEEKEND, "content": [] } );
         return;
     }
@@ -148,7 +148,7 @@ function currentWeek () {
 
     var returnString = '';
     for (var i = 0; i < 5; i++) {
-        returnString += d.getFullYear().toString() + '-' + (d.getMonth() + 1).toString() + '-' + d.getDate().toString() + ',';
+        returnString += buildDateStringForApi(d) + ',';
         d.setDate(d.getDate() + 1)
     }
     return returnString.slice(0, - 1);
@@ -162,6 +162,8 @@ function buildDateStringForApi(d) {
 
 function today () {
     var d = new Date();
+
+    d.setDate(d.getDate()+1)
     return buildDateStringForApi(d)
 }
 
