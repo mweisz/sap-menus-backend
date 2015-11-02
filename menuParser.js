@@ -163,7 +163,7 @@ function buildDateStringForApi(d) {
 function today () {
     var d = new Date();
 
-    d.setDate(d.getDate()+1)
+    d.setDate(d.getDate())
     return buildDateStringForApi(d)
 }
 
