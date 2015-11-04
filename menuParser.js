@@ -14,7 +14,7 @@ var STATUSCODE = {
 
 exports.today = function (req, res) {
     var date = today();
-    if ( !isWeekend() ) {
+    if ( isWeekend() ) {
         res.send( { "statusCode" : STATUSCODE.WEEKEND, "content": [] } );
         return;
     }
